@@ -51,7 +51,7 @@ template<
 >
 ROCPRIM_DEVICE inline
 typename std::enable_if<!WithValues>::type
-block_load_impl(const unsigned int flat_id,
+block_load_impl(const size_t flat_id,
                 const unsigned int block_offset,
                 const unsigned int valid_in_last_block,
                 const bool last_block,
@@ -94,7 +94,7 @@ template<
 >
 ROCPRIM_DEVICE inline
 typename std::enable_if<WithValues>::type
-block_load_impl(const unsigned int flat_id,
+block_load_impl(const size_t flat_id,
                 const unsigned int block_offset,
                 const unsigned int valid_in_last_block,
                 const bool last_block,
@@ -146,7 +146,7 @@ template<
 >
 ROCPRIM_DEVICE inline
 typename std::enable_if<!WithValues>::type
-block_store_impl(const unsigned int flat_id,
+block_store_impl(const size_t flat_id,
                  const unsigned int block_offset,
                  const unsigned int valid_in_last_block,
                  const bool last_block,
@@ -188,7 +188,7 @@ template<
 >
 ROCPRIM_DEVICE inline
 typename std::enable_if<WithValues>::type
-block_store_impl(const unsigned int flat_id,
+block_store_impl(const size_t flat_id,
                  const unsigned int block_offset,
                  const unsigned int valid_in_last_block,
                  const bool last_block,
@@ -338,7 +338,7 @@ void block_sort_kernel_impl(KeysInputIterator keys_input,
     using stable_key_type = rocprim::tuple<key_type, unsigned int>;
     constexpr bool with_values = !std::is_same<value_type, ::rocprim::empty_type>::value;
 
-    const unsigned int flat_id = ::rocprim::detail::block_thread_id<0>();
+    const size_t flat_id = ::rocprim::detail::block_thread_id<0>();
     const unsigned int flat_block_id = ::rocprim::detail::block_id<0>();
     const unsigned int block_offset = flat_block_id * BlockSize;
     const unsigned int number_of_blocks = (input_size + BlockSize - 1)/BlockSize;
@@ -409,10 +409,10 @@ void block_merge_kernel_impl(KeysInputIterator keys_input,
     using value_type = typename std::iterator_traits<ValuesInputIterator>::value_type;
     constexpr bool with_values = !std::is_same<value_type, ::rocprim::empty_type>::value;
 
-    const unsigned int flat_id = ::rocprim::detail::block_thread_id<0>();
+    const size_t flat_id = ::rocprim::detail::block_thread_id<0>();
     const unsigned int flat_block_id = ::rocprim::detail::block_id<0>();
     const unsigned int flat_block_size = ::rocprim::detail::block_size<0>();
-    unsigned int id = (flat_block_id * flat_block_size) + flat_id;
+    size_t id = ((size_t)flat_block_id * flat_block_size) + flat_id;
 
     if (id >= input_size)
     {
@@ -428,13 +428,13 @@ void block_merge_kernel_impl(KeysInputIterator keys_input,
         value = values_input[id];
     }
 
-    const unsigned int block_id = id / block_size;
+    const size_t block_id = id / block_size;
     const bool block_id_is_odd = block_id & 1;
-    const unsigned int next_block_id = block_id_is_odd ? block_id - 1 :
+    const size_t next_block_id = block_id_is_odd ? block_id - 1 :
                                                          block_id + 1;
-    const unsigned int block_start = min(block_id * block_size, (unsigned int) input_size);
-    const unsigned int next_block_start = min(next_block_id * block_size, (unsigned int) input_size);
-    const unsigned int next_block_end = min((next_block_id + 1) * block_size, (unsigned int) input_size);
+    const size_t block_start = min(block_id * block_size, (size_t) input_size);
+    const size_t next_block_start = min(next_block_id * block_size, (size_t) input_size);
+    const size_t next_block_end = min((next_block_id + 1) * block_size, (size_t) input_size);
 
     if(next_block_start == input_size)
     {
@@ -451,7 +451,7 @@ void block_merge_kernel_impl(KeysInputIterator keys_input,
 
     while(left_id < right_id)
     {
-        unsigned int mid_id = (left_id + right_id) / 2;
+        size_t mid_id = (left_id + right_id) / 2;
         key_type mid_key = keys_input[mid_id];
         bool smaller = compare_function(mid_key, key);
         left_id = smaller ? mid_id + 1 : left_id;
@@ -466,7 +466,7 @@ void block_merge_kernel_impl(KeysInputIterator keys_input,
               !compare_function(key, upper_key) &&
               left_id < right_id)
         {
-            unsigned int mid_id = (left_id + right_id) / 2;
+            size_t mid_id = (left_id + right_id) / 2;
             key_type mid_key = keys_input[mid_id];
             bool equal = !compare_function(mid_key, key) &&
                          !compare_function(key, mid_key);

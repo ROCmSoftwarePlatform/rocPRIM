@@ -174,7 +174,7 @@ auto partition_block_load_flags(InputIterator /* block_predecessor */,
                                 InequalityOp /* inequality_op */,
                                 StorageType& /* storage */,
                                 const unsigned int /* block_id */,
-                                const unsigned int block_thread_id,
+                                const size_t block_thread_id,
                                 const bool is_last_block,
                                 const unsigned int valid_in_last_block)
     -> typename std::enable_if<SelectMethod == select_method::predicate>::type
@@ -248,7 +248,7 @@ auto partition_block_load_flags(InputIterator block_predecessor,
                                 InequalityOp inequality_op,
                                 StorageType& storage,
                                 const unsigned int block_id,
-                                const unsigned int block_thread_id,
+                                const size_t block_thread_id,
                                 const bool is_last_block,
                                 const unsigned int valid_in_last_block)
     -> typename std::enable_if<SelectMethod == select_method::unique>::type
@@ -345,7 +345,7 @@ auto partition_scatter(ValueType (&values)[ItemsPerThread],
                        const OffsetType selected_in_block,
                        ScatterStorageType& storage,
                        const unsigned int flat_block_id,
-                       const unsigned int flat_block_thread_id,
+                       const size_t flat_block_thread_id,
                        const bool is_last_block,
                        const unsigned int valid_in_last_block)
     -> typename std::enable_if<!OnlySelected>::type
@@ -357,9 +357,9 @@ auto partition_scatter(ValueType (&values)[ItemsPerThread],
     #pragma unroll
     for(unsigned int i = 0; i < ItemsPerThread; i++)
     {
-        unsigned int item_index = (flat_block_thread_id * ItemsPerThread) + i;
-        unsigned int selected_item_index = output_indices[i] - selected_prefix;
-        unsigned int rejected_item_index = (item_index - selected_item_index) + selected_in_block;
+        size_t item_index = ((size_t)flat_block_thread_id * ItemsPerThread) + i;
+        size_t selected_item_index = output_indices[i] - selected_prefix;
+        size_t rejected_item_index = (item_index - selected_item_index) + selected_in_block;
         // index of item in scatter_storage
         unsigned int scatter_index = is_selected[i] ? selected_item_index : rejected_item_index;
         scatter_storage[scatter_index] = values[i];
@@ -369,11 +369,11 @@ auto partition_scatter(ValueType (&values)[ItemsPerThread],
     #pragma unroll
     for(unsigned int i = 0; i < ItemsPerThread; i++)
     {
-        unsigned int item_index = (i * BlockSize) + flat_block_thread_id;
-        unsigned int selected_item_index = item_index;
-        unsigned int rejected_item_index = item_index - selected_in_block;
+        size_t item_index = ((size_t)i * BlockSize) + flat_block_thread_id;
+        size_t selected_item_index = item_index;
+        size_t rejected_item_index = item_index - selected_in_block;
         // number of values rejected in previous blocks
-        unsigned int rejected_prefix = (flat_block_id * items_per_block) - selected_prefix;
+        size_t rejected_prefix = ((size_t)flat_block_id * items_per_block) - selected_prefix;
         // destination index of item scatter_storage[item_index] in output
         OffsetType scatter_index = item_index < selected_in_block
             ? selected_prefix + selected_item_index
@@ -406,7 +406,7 @@ auto partition_scatter(ValueType (&values)[ItemsPerThread],
                        const OffsetType selected_in_block,
                        ScatterStorageType& storage,
                        const unsigned int flat_block_id,
-                       const unsigned int flat_block_thread_id,
+                       const size_t flat_block_thread_id,
                        const bool is_last_block,
                        const unsigned int valid_in_last_block)
     -> typename std::enable_if<OnlySelected>::type
@@ -480,7 +480,7 @@ void partition_kernel_impl(InputIterator input,
 {
     constexpr auto block_size = Config::block_size;
     constexpr auto items_per_thread = Config::items_per_thread;
-    constexpr unsigned int items_per_block = block_size * items_per_thread;
+    constexpr size_t items_per_block = (size_t)block_size * items_per_thread;
 
     using offset_type = typename OffsetLookbackScanState::value_type;
     using value_type = typename std::iterator_traits<InputIterator>::value_type;
@@ -527,7 +527,7 @@ void partition_kernel_impl(InputIterator input,
 
     const auto flat_block_thread_id = ::rocprim::detail::block_thread_id<0>();
     const auto flat_block_id = ordered_bid.get(flat_block_thread_id, storage.ordered_bid);
-    const unsigned int block_offset = flat_block_id * items_per_block;
+    const size_t block_offset = (size_t)flat_block_id * items_per_block;
     const auto valid_in_last_block = size - items_per_block * (number_of_blocks - 1);
 
     value_type values[items_per_thread];

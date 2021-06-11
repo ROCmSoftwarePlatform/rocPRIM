@@ -56,7 +56,7 @@ template<
 __global__
 __launch_bounds__(BlockSize)
 void fill_digit_counts_kernel(KeysInputIterator keys_input,
-                              unsigned int size,
+                              size_t size,
                               unsigned int * batch_digit_counts,
                               unsigned int bit,
                               unsigned int current_radix_bits,
@@ -187,6 +187,7 @@ hipError_t radix_sort_iteration(KeysInputIterator keys_input,
     if(debug_synchronous) start = std::chrono::high_resolution_clock::now();
     if(from_input)
     {
+        kernel_constraints_check(dim3(batches), dim3(Config::sort::block_size));
         hipLaunchKernelGGL(
             HIP_KERNEL_NAME(fill_digit_counts_kernel<
                 Config::sort::block_size, Config::sort::items_per_thread, RadixBits, Descending
@@ -202,6 +203,7 @@ hipError_t radix_sort_iteration(KeysInputIterator keys_input,
     {
         if(to_output)
         {
+            kernel_constraints_check(dim3(batches), dim3(Config::sort::block_size));
             hipLaunchKernelGGL(
                 HIP_KERNEL_NAME(fill_digit_counts_kernel<
                     Config::sort::block_size, Config::sort::items_per_thread, RadixBits, Descending
@@ -215,6 +217,7 @@ hipError_t radix_sort_iteration(KeysInputIterator keys_input,
         }
         else
         {
+            kernel_constraints_check(dim3(batches), dim3(Config::sort::block_size));
             hipLaunchKernelGGL(
                 HIP_KERNEL_NAME(fill_digit_counts_kernel<
                     Config::sort::block_size, Config::sort::items_per_thread, RadixBits, Descending
@@ -229,6 +232,8 @@ hipError_t radix_sort_iteration(KeysInputIterator keys_input,
     }
     ROCPRIM_DETAIL_HIP_SYNC_AND_RETURN_ON_ERROR("fill_digit_counts", size, start)
 
+    kernel_constraints_check(dim3(radix_size), dim3(Config::sort::block_size));
+
     if(debug_synchronous) start = std::chrono::high_resolution_clock::now();
     hipLaunchKernelGGL(
         HIP_KERNEL_NAME(scan_batches_kernel<Config::scan::block_size, Config::scan::items_per_thread, RadixBits>),
@@ -237,6 +242,7 @@ hipError_t radix_sort_iteration(KeysInputIterator keys_input,
     );
     ROCPRIM_DETAIL_HIP_SYNC_AND_RETURN_ON_ERROR("scan_batches", radix_size * Config::scan::block_size, start)
 
+    kernel_constraints_check(dim3(1), dim3(radix_size));
     if(debug_synchronous) start = std::chrono::high_resolution_clock::now();
     hipLaunchKernelGGL(
         HIP_KERNEL_NAME(scan_digits_kernel<RadixBits>),
@@ -250,6 +256,7 @@ hipError_t radix_sort_iteration(KeysInputIterator keys_input,
     {
         if(to_output)
         {
+            kernel_constraints_check(dim3(batches), dim3(Config::sort::block_size));
             hipLaunchKernelGGL(
                 HIP_KERNEL_NAME(sort_and_scatter_kernel<
                     Config::sort::block_size, Config::sort::items_per_thread, RadixBits, Descending
@@ -264,6 +271,7 @@ hipError_t radix_sort_iteration(KeysInputIterator keys_input,
         }
         else
         {
+            kernel_constraints_check(dim3(batches), dim3(Config::sort::block_size));
             hipLaunchKernelGGL(
                 HIP_KERNEL_NAME(sort_and_scatter_kernel<
                     Config::sort::block_size, Config::sort::items_per_thread, RadixBits, Descending
@@ -281,6 +289,7 @@ hipError_t radix_sort_iteration(KeysInputIterator keys_input,
     {
         if(to_output)
         {
+            kernel_constraints_check(dim3(batches), dim3(Config::sort::block_size));
             hipLaunchKernelGGL(
                 HIP_KERNEL_NAME(sort_and_scatter_kernel<
                     Config::sort::block_size, Config::sort::items_per_thread, RadixBits, Descending
@@ -295,6 +304,7 @@ hipError_t radix_sort_iteration(KeysInputIterator keys_input,
         }
         else
         {
+            kernel_constraints_check(dim3(batches), dim3(Config::sort::block_size));
             hipLaunchKernelGGL(
                 HIP_KERNEL_NAME(sort_and_scatter_kernel<
                     Config::sort::block_size, Config::sort::items_per_thread, RadixBits, Descending

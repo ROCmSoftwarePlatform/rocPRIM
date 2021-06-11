@@ -202,7 +202,7 @@ auto scan_impl(void * temporary_storage,
 
     constexpr unsigned int block_size = config::block_size;
     constexpr unsigned int items_per_thread = config::items_per_thread;
-    constexpr auto items_per_block = block_size * items_per_thread;
+    constexpr auto items_per_block = (size_t)block_size * items_per_thread;
 
     // Calculate required temporary storage
     if(temporary_storage == nullptr)
@@ -236,6 +236,7 @@ auto scan_impl(void * temporary_storage,
         // Grid size for block_reduce_kernel, we don't need to calculate reduction
         // of the last block as it will never be used as prefix for other blocks
         auto grid_size = number_of_blocks - 1;
+        kernel_constraints_check(dim3(grid_size),dim3(block_size));
         if(debug_synchronous) start = std::chrono::high_resolution_clock::now();
         hipLaunchKernelGGL(
             HIP_KERNEL_NAME(detail::block_reduce_kernel<
@@ -270,6 +271,7 @@ auto scan_impl(void * temporary_storage,
 
         // Grid size for final_scan_kernel
         grid_size = number_of_blocks;
+        kernel_constraints_check(dim3(grid_size),dim3(block_size));
         if(debug_synchronous) start = std::chrono::high_resolution_clock::now();
         hipLaunchKernelGGL(
             HIP_KERNEL_NAME(detail::final_scan_kernel<
@@ -290,6 +292,7 @@ auto scan_impl(void * temporary_storage,
     }
     else
     {
+        kernel_constraints_check(dim3(1),dim3(block_size));
         if(debug_synchronous) start = std::chrono::high_resolution_clock::now();
         hipLaunchKernelGGL(
             HIP_KERNEL_NAME(detail::single_scan_kernel<
@@ -396,6 +399,7 @@ auto scan_impl(void * temporary_storage,
 
         if (prop.gcnArch == 908 && asicRevision < 2)
         {
+            kernel_constraints_check(dim3(grid_size), dim3(block_size));
             hipLaunchKernelGGL(
                 HIP_KERNEL_NAME(init_lookback_scan_state_kernel<scan_state_with_sleep_type>),
                 dim3(grid_size), dim3(block_size), 0, stream,
@@ -403,6 +407,7 @@ auto scan_impl(void * temporary_storage,
             );
         } else
         {
+            kernel_constraints_check(dim3(grid_size), dim3(block_size));
             hipLaunchKernelGGL(
                 HIP_KERNEL_NAME(init_lookback_scan_state_kernel<scan_state_type>),
                 dim3(grid_size), dim3(block_size), 0, stream,
@@ -415,6 +420,7 @@ auto scan_impl(void * temporary_storage,
         grid_size = number_of_blocks;
         if (prop.gcnArch == 908 && asicRevision < 2)
         {
+            kernel_constraints_check(dim3(grid_size), dim3(block_size));
             hipLaunchKernelGGL(
                 HIP_KERNEL_NAME(lookback_scan_kernel<
                     Exclusive, // flag for exclusive scan operation
@@ -428,6 +434,7 @@ auto scan_impl(void * temporary_storage,
             );
         } else
         {
+            kernel_constraints_check(dim3(grid_size), dim3(block_size));
             hipLaunchKernelGGL(
                 HIP_KERNEL_NAME(lookback_scan_kernel<
                     Exclusive, // flag for exclusive scan operation
@@ -444,6 +451,7 @@ auto scan_impl(void * temporary_storage,
     }
     else
     {
+        kernel_constraints_check(dim3(1), dim3(block_size));
         if(debug_synchronous) start = std::chrono::high_resolution_clock::now();
         hipLaunchKernelGGL(
             HIP_KERNEL_NAME(single_scan_kernel<

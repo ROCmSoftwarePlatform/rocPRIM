@@ -187,7 +187,7 @@ hipError_t segmented_radix_sort_impl(void * temporary_storage,
     const bool to_output = with_double_buffer || (iterations - 1) % 2 == 0;
 
     std::chrono::high_resolution_clock::time_point start;
-
+    kernel_constraints_check(dim3(segments), dim3(config::sort::block_size));
     if(debug_synchronous) start = std::chrono::high_resolution_clock::now();
     hipLaunchKernelGGL(
         HIP_KERNEL_NAME(segmented_sort_kernel<config, Descending>),

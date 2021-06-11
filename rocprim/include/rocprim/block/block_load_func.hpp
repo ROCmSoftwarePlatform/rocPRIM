@@ -55,7 +55,7 @@ template<
     unsigned int ItemsPerThread
 >
 ROCPRIM_DEVICE inline
-void block_load_direct_blocked(unsigned int flat_id,
+void block_load_direct_blocked(size_t flat_id,
                                InputIterator block_input,
                                T (&items)[ItemsPerThread])
 {
@@ -91,7 +91,7 @@ template<
     unsigned int ItemsPerThread
 >
 ROCPRIM_DEVICE inline
-void block_load_direct_blocked(unsigned int flat_id,
+void block_load_direct_blocked(size_t flat_id,
                                InputIterator block_input,
                                T (&items)[ItemsPerThread],
                                unsigned int valid)
@@ -135,7 +135,7 @@ template<
     class Default
 >
 ROCPRIM_DEVICE inline
-void block_load_direct_blocked(unsigned int flat_id,
+void block_load_direct_blocked(size_t flat_id,
                                InputIterator block_input,
                                T (&items)[ItemsPerThread],
                                unsigned int valid,
@@ -182,7 +182,7 @@ template<
 >
 ROCPRIM_DEVICE inline
 typename std::enable_if<detail::is_vectorizable<T, ItemsPerThread>()>::type
-block_load_direct_blocked_vectorized(unsigned int flat_id,
+block_load_direct_blocked_vectorized(size_t flat_id,
                                      T* block_input,
                                      U (&items)[ItemsPerThread])
 {
@@ -213,7 +213,7 @@ template<
 >
 ROCPRIM_DEVICE inline
 typename std::enable_if<!detail::is_vectorizable<T, ItemsPerThread>()>::type
-block_load_direct_blocked_vectorized(unsigned int flat_id,
+block_load_direct_blocked_vectorized(size_t flat_id,
                                      T* block_input,
                                      U (&items)[ItemsPerThread])
 {
@@ -244,7 +244,7 @@ template<
     unsigned int ItemsPerThread
 >
 ROCPRIM_DEVICE inline
-void block_load_direct_striped(unsigned int flat_id,
+void block_load_direct_striped(size_t flat_id,
                                InputIterator block_input,
                                T (&items)[ItemsPerThread])
 {
@@ -281,7 +281,7 @@ template<
     unsigned int ItemsPerThread
 >
 ROCPRIM_DEVICE inline
-void block_load_direct_striped(unsigned int flat_id,
+void block_load_direct_striped(size_t flat_id,
                                InputIterator block_input,
                                T (&items)[ItemsPerThread],
                                unsigned int valid)
@@ -327,7 +327,7 @@ template<
     class Default
 >
 ROCPRIM_DEVICE inline
-void block_load_direct_striped(unsigned int flat_id,
+void block_load_direct_striped(size_t flat_id,
                                InputIterator block_input,
                                T (&items)[ItemsPerThread],
                                unsigned int valid,
@@ -373,7 +373,7 @@ template<
     unsigned int ItemsPerThread
 >
 ROCPRIM_DEVICE inline
-void block_load_direct_warp_striped(unsigned int flat_id,
+void block_load_direct_warp_striped(size_t flat_id,
                                     InputIterator block_input,
                                     T (&items)[ItemsPerThread])
 {
@@ -381,8 +381,8 @@ void block_load_direct_warp_striped(unsigned int flat_id,
                  "WarpSize must be a power of two and equal or less"
                  "than the size of hardware warp.");
     unsigned int thread_id = detail::logical_lane_id<WarpSize>();
-    unsigned int warp_id = flat_id / WarpSize;
-    unsigned int warp_offset = warp_id * WarpSize * ItemsPerThread;
+    size_t warp_id = flat_id / WarpSize;
+    size_t warp_offset = warp_id * WarpSize * ItemsPerThread;
 
     InputIterator thread_iter = block_input + thread_id + warp_offset;
     #pragma unroll
@@ -424,7 +424,7 @@ template<
     unsigned int ItemsPerThread
 >
 ROCPRIM_DEVICE inline
-void block_load_direct_warp_striped(unsigned int flat_id,
+void block_load_direct_warp_striped(size_t flat_id,
                                     InputIterator block_input,
                                     T (&items)[ItemsPerThread],
                                     unsigned int valid)
@@ -433,8 +433,8 @@ void block_load_direct_warp_striped(unsigned int flat_id,
                  "WarpSize must be a power of two and equal or less"
                  "than the size of hardware warp.");
     unsigned int thread_id = detail::logical_lane_id<WarpSize>();
-    unsigned int warp_id = flat_id / WarpSize;
-    unsigned int warp_offset = warp_id * WarpSize * ItemsPerThread;
+    size_t warp_id = flat_id / WarpSize;
+    size_t warp_offset = warp_id * WarpSize * ItemsPerThread;
 
     InputIterator thread_iter = block_input + thread_id + warp_offset;
     #pragma unroll
@@ -484,7 +484,7 @@ template<
     class Default
 >
 ROCPRIM_DEVICE inline
-void block_load_direct_warp_striped(unsigned int flat_id,
+void block_load_direct_warp_striped(size_t flat_id,
                                     InputIterator block_input,
                                     T (&items)[ItemsPerThread],
                                     unsigned int valid,

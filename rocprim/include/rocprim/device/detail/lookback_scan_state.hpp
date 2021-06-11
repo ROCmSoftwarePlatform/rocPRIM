@@ -97,7 +97,7 @@ public:
 
     // temp_storage must point to allocation of get_storage_size(number_of_blocks) bytes
     ROCPRIM_HOST static inline
-    lookback_scan_state create(void* temp_storage, const unsigned int number_of_blocks)
+    lookback_scan_state create(void* temp_storage, const size_t number_of_blocks)
     {
         (void) number_of_blocks;
         lookback_scan_state state;
@@ -106,14 +106,14 @@ public:
     }
 
     ROCPRIM_HOST static inline
-    size_t get_storage_size(const unsigned int number_of_blocks)
+    size_t get_storage_size(const size_t number_of_blocks)
     {
         return sizeof(prefix_underlying_type) * (::rocprim::host_warp_size() + number_of_blocks);
     }
 
     ROCPRIM_DEVICE inline
     void initialize_prefix(const unsigned int block_id,
-                           const unsigned int number_of_blocks)
+                           const size_t number_of_blocks)
     {
         constexpr unsigned int padding = ::rocprim::device_warp_size();
 
@@ -206,7 +206,7 @@ public:
 
     // temp_storage must point to allocation of get_storage_size(number_of_blocks) bytes
     ROCPRIM_HOST static inline
-    lookback_scan_state create(void* temp_storage, const unsigned int number_of_blocks)
+    lookback_scan_state create(void* temp_storage, const size_t number_of_blocks)
     {
         const auto n = ::rocprim::host_warp_size() + number_of_blocks;
         lookback_scan_state state;
@@ -224,7 +224,7 @@ public:
     }
 
     ROCPRIM_HOST static inline
-    size_t get_storage_size(const unsigned int number_of_blocks)
+    size_t get_storage_size(const size_t number_of_blocks)
     {
         const auto n = ::rocprim::host_warp_size() + number_of_blocks;
         size_t size = ::rocprim::detail::align_size(n * sizeof(flag_type));
@@ -234,7 +234,7 @@ public:
 
     ROCPRIM_DEVICE inline
     void initialize_prefix(const unsigned int block_id,
-                           const unsigned int number_of_blocks)
+                           const size_t number_of_blocks)
     {
         constexpr unsigned int padding = ::rocprim::device_warp_size();
         if(block_id < number_of_blocks)

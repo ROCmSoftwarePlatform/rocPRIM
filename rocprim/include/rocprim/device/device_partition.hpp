@@ -151,7 +151,7 @@ hipError_t partition_impl(void * temporary_storage,
 
     constexpr unsigned int block_size = config::block_size;
     constexpr unsigned int items_per_thread = config::items_per_thread;
-    constexpr auto items_per_block = block_size * items_per_thread;
+    constexpr auto items_per_block = (size_t)block_size * items_per_thread;
     const unsigned int number_of_blocks =
         std::max(1u, static_cast<unsigned int>((size + items_per_block - 1)/items_per_block));
 
@@ -207,6 +207,7 @@ hipError_t partition_impl(void * temporary_storage,
 
     if (prop.gcnArch == 908 && asicRevision < 2)
     {
+        kernel_constraints_check(dim3(grid_size), dim3(block_size));
         hipLaunchKernelGGL(
             HIP_KERNEL_NAME(init_offset_scan_state_kernel<offset_scan_state_with_sleep_type>),
             dim3(grid_size), dim3(block_size), 0, stream,
@@ -214,6 +215,7 @@ hipError_t partition_impl(void * temporary_storage,
         );
     } else
     {
+        kernel_constraints_check(dim3(grid_size), dim3(block_size));
         hipLaunchKernelGGL(
             HIP_KERNEL_NAME(init_offset_scan_state_kernel<offset_scan_state_type>),
             dim3(grid_size), dim3(block_size), 0, stream,
@@ -228,6 +230,7 @@ hipError_t partition_impl(void * temporary_storage,
     grid_size = number_of_blocks;
     if (prop.gcnArch == 908 && asicRevision < 2)
     {
+        kernel_constraints_check(dim3(grid_size), dim3(block_size));
         hipLaunchKernelGGL(
             HIP_KERNEL_NAME(partition_kernel<
                 SelectMethod, OnlySelected, config,
@@ -240,6 +243,7 @@ hipError_t partition_impl(void * temporary_storage,
         );
     } else
     {
+        kernel_constraints_check(dim3(grid_size), dim3(block_size));
         hipLaunchKernelGGL(
             HIP_KERNEL_NAME(partition_kernel<
                 SelectMethod, OnlySelected, config,

@@ -133,6 +133,7 @@ hipError_t segmented_scan_impl(void * temporary_storage,
         return hipSuccess;
 
     std::chrono::high_resolution_clock::time_point start;
+    kernel_constraints_check(dim3(segments), dim3(block_size));
     if(debug_synchronous) start = std::chrono::high_resolution_clock::now();
     hipLaunchKernelGGL(
         HIP_KERNEL_NAME(segmented_scan_kernel<Exclusive, config, result_type>),

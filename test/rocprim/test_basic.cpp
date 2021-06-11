@@ -24,7 +24,6 @@
 
 // required rocprim headers
 #include <rocprim/rocprim.hpp>
-
 // required test headers
 #include "detail/get_rocprim_version.hpp"
 

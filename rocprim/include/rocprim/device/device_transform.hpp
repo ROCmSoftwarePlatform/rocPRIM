@@ -172,7 +172,8 @@ hipError_t transform(InputIterator input,
         std::cout << "number of blocks " << number_of_blocks << '\n';
         std::cout << "items_per_block " << items_per_block << '\n';
     }
-
+    
+    kernel_constraints_check(dim3(number_of_blocks), dim3(block_size));
     if(debug_synchronous) start = std::chrono::high_resolution_clock::now();
     hipLaunchKernelGGL(
         HIP_KERNEL_NAME(detail::transform_kernel<

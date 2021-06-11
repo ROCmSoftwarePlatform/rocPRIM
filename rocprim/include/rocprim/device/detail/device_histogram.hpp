@@ -247,7 +247,7 @@ template<
 >
 ROCPRIM_DEVICE inline
 typename std::enable_if<is_sample_vectorizable<ItemsPerThread, Channels, Sample>::value>::type
-load_samples(unsigned int flat_id,
+load_samples(size_t flat_id,
              Sample * samples,
              sample_vector<Sample, Channels> (&values)[ItemsPerThread])
 {
@@ -280,7 +280,7 @@ template<
 >
 ROCPRIM_DEVICE inline
 typename std::enable_if<!is_sample_vectorizable<ItemsPerThread, Channels, Sample>::value>::type
-load_samples(unsigned int flat_id,
+load_samples(size_t flat_id,
              Sample * samples,
              sample_vector<Sample, Channels> (&values)[ItemsPerThread])
 {
@@ -299,7 +299,7 @@ template<
     class SampleIterator
 >
 ROCPRIM_DEVICE inline
-void load_samples(unsigned int flat_id,
+void load_samples(size_t flat_id,
                   SampleIterator samples,
                   sample_vector<Sample, Channels> (&values)[ItemsPerThread])
 {
@@ -326,7 +326,7 @@ template<
     class SampleIterator
 >
 ROCPRIM_DEVICE inline
-void load_samples(unsigned int flat_id,
+void load_samples(size_t flat_id,
                   SampleIterator samples,
                   sample_vector<Sample, Channels> (&values)[ItemsPerThread],
                   unsigned int valid_count)
@@ -356,7 +356,7 @@ ROCPRIM_DEVICE inline
 void init_histogram(fixed_array<Counter *, ActiveChannels> histogram,
                     fixed_array<unsigned int, ActiveChannels> bins)
 {
-    const unsigned int flat_id = ::rocprim::detail::block_thread_id<0>();
+    const size_t flat_id = ::rocprim::detail::block_thread_id<0>();
     const unsigned int block_id = ::rocprim::detail::block_id<0>();
 
     const unsigned int index = block_id * BlockSize + flat_id;
@@ -394,7 +394,7 @@ void histogram_shared(SampleIterator samples,
 
     constexpr unsigned int items_per_block = BlockSize * ItemsPerThread;
 
-    const unsigned int flat_id = ::rocprim::detail::block_thread_id<0>();
+    const size_t flat_id = ::rocprim::detail::block_thread_id<0>();
     const unsigned int block_id0 = ::rocprim::detail::block_id<0>();
     const unsigned int block_id1 = ::rocprim::detail::block_id<1>();
     const unsigned int grid_size0 = ::rocprim::detail::grid_size<0>();
@@ -498,7 +498,7 @@ void histogram_global(SampleIterator samples,
 
     constexpr unsigned int items_per_block = BlockSize * ItemsPerThread;
 
-    const unsigned int flat_id = ::rocprim::detail::block_thread_id<0>();
+    const size_t flat_id = ::rocprim::detail::block_thread_id<0>();
     const unsigned int block_id0 = ::rocprim::detail::block_id<0>();
     const unsigned int block_id1 = ::rocprim::detail::block_id<1>();
     const unsigned int block_offset = block_id0 * items_per_block;

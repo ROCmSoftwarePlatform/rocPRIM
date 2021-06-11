@@ -91,7 +91,7 @@ void transform_kernel_impl(InputIterator input,
 
     constexpr unsigned int items_per_block = BlockSize * ItemsPerThread;
 
-    const unsigned int flat_id = ::rocprim::detail::block_thread_id<0>();
+    const size_t flat_id = ::rocprim::detail::block_thread_id<0>();
     const unsigned int flat_block_id = ::rocprim::detail::block_id<0>();
     const unsigned int block_offset = flat_block_id * items_per_block;
     const unsigned int number_of_blocks = ::rocprim::detail::grid_size<0>();

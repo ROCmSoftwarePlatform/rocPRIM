@@ -126,7 +126,7 @@ hipError_t segmented_reduce_impl(void * temporary_storage,
         return hipSuccess;
 
     std::chrono::high_resolution_clock::time_point start;
-
+    kernel_constraints_check(dim3(segments), dim3(block_size));
     if(debug_synchronous) start = std::chrono::high_resolution_clock::now();
     hipLaunchKernelGGL(
         HIP_KERNEL_NAME(segmented_reduce_kernel<config>),

@@ -70,8 +70,10 @@ namespace detail
 template<class Value>
 struct select_config_803
 {
-    static constexpr unsigned int item_scale =
+    static constexpr unsigned int int_scale =
         ::rocprim::detail::ceiling_div<unsigned int>(sizeof(Value), sizeof(int));
+
+    static constexpr unsigned int item_scale = int_scale > 2 ?  13 : int_scale;
 
     using type = select_config<
         limit_block_size<256U, sizeof(Value), ROCPRIM_WARP_SIZE_64>::value,
@@ -85,9 +87,10 @@ struct select_config_803
 template<class Value>
 struct select_config_900
 {
-    static constexpr unsigned int item_scale =
+    static constexpr unsigned int int_scale =
         ::rocprim::detail::ceiling_div<unsigned int>(sizeof(Value), sizeof(int));
 
+    static constexpr unsigned int item_scale = int_scale > 2 ?  15 : int_scale;
     using type = select_config<
         limit_block_size<256U, sizeof(Value), ROCPRIM_WARP_SIZE_64>::value,
         ::rocprim::max(1u, 15u / item_scale),

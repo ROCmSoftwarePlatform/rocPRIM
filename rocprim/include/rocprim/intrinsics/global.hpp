@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2018 Advanced Micro Devices, Inc. All rights reserved.
+// Copyright (c) 2017-2019 Advanced Micro Devices, Inc. All rights reserved.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -18,17 +18,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef ROCPRIM_INTRINSICS_HPP_
-#define ROCPRIM_INTRINSICS_HPP_
+#ifndef ROCPRIM_INTRINSICS_GLOBAL_HPP_
+#define ROCPRIM_INTRINSICS_GLOBAL_HPP_
 
-// Meta configuration for rocPRIM
-#include "config.hpp"
+#include "../config.hpp"
 
-#include "intrinsics/atomic.hpp"
-#include "intrinsics/bit.hpp"
-#include "intrinsics/global.hpp"
-#include "intrinsics/thread.hpp"
-#include "intrinsics/warp.hpp"
-#include "intrinsics/warp_shuffle.hpp"
+BEGIN_ROCPRIM_NAMESPACE
 
-#endif // ROCPRIM_INTRINSICS_WARP_SHUFFLE_HPP_
+inline
+void kernel_constraints_check(dim3 gridDim, dim3 blockDim)
+{
+  size_t thread_count = blockDim.x;
+  thread_count *= blockDim.y;
+  thread_count *= blockDim.z;
+  thread_count *= gridDim.x;
+  thread_count *= gridDim.y;
+  thread_count *= gridDim.z;
+  if(thread_count>=(4294967296))
+  {
+    throw std::runtime_error("Thread count exceeds max value of 2^32 -1");
+  }
+
+}
+
+END_ROCPRIM_NAMESPACE
+
+#endif // ROCPRIM_INTRINSICS_GLOBAL_HPP_

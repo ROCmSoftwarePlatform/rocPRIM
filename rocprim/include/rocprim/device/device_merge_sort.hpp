@@ -180,6 +180,7 @@ hipError_t merge_sort_impl(void * temporary_storage,
     if(debug_synchronous) start = std::chrono::high_resolution_clock::now();
 
     const unsigned int grid_size = number_of_blocks;
+    kernel_constraints_check(dim3(grid_size), dim3(block_size));
     hipLaunchKernelGGL(
         HIP_KERNEL_NAME(block_sort_kernel<block_size>),
         dim3(grid_size), dim3(block_size), 0, stream,
@@ -194,6 +195,7 @@ hipError_t merge_sort_impl(void * temporary_storage,
         temporary_store = !temporary_store;
         if(temporary_store)
         {
+            kernel_constraints_check(dim3(grid_size), dim3(block_size));
             if(debug_synchronous) start = std::chrono::high_resolution_clock::now();
             hipLaunchKernelGGL(
                 HIP_KERNEL_NAME(block_merge_kernel),
@@ -205,6 +207,7 @@ hipError_t merge_sort_impl(void * temporary_storage,
         }
         else
         {
+            kernel_constraints_check(dim3(grid_size), dim3(block_size));
             if(debug_synchronous) start = std::chrono::high_resolution_clock::now();
             hipLaunchKernelGGL(
                 HIP_KERNEL_NAME(block_merge_kernel),

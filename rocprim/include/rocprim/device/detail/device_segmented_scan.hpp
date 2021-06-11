@@ -152,7 +152,7 @@ void segmented_scan(InputIterator input,
         typename block_scan_type::storage_type scan;
     } storage;
 
-    const unsigned int segment_id = ::rocprim::detail::block_id<0>();
+    const size_t segment_id = ::rocprim::detail::block_id<0>();
     const unsigned int begin_offset = begin_offsets[segment_id];
     const unsigned int end_offset = end_offsets[segment_id];
 

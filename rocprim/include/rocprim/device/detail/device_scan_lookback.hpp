@@ -53,8 +53,8 @@ void init_lookback_scan_state_kernel_impl(LookBackScanState lookback_scan_state,
 {
     const unsigned int block_id = ::rocprim::detail::block_id<0>();
     const unsigned int block_size = ::rocprim::detail::block_size<0>();
-    const unsigned int block_thread_id = ::rocprim::detail::block_thread_id<0>();
-    const unsigned int id = (block_id * block_size) + block_thread_id;
+    const size_t block_thread_id = ::rocprim::detail::block_thread_id<0>();
+    const size_t id = ((size_t)block_id * block_size) + block_thread_id;
 
     // Reset ordered_block_id
     if(id == 0)
@@ -194,7 +194,7 @@ void lookback_scan_kernel_impl(InputIterator input,
 
     constexpr auto block_size = Config::block_size;
     constexpr auto items_per_thread = Config::items_per_thread;
-    constexpr unsigned int items_per_block = block_size * items_per_thread;
+    constexpr auto items_per_block = (size_t)block_size * items_per_thread;
 
     using block_load_type = ::rocprim::block_load<
         result_type, block_size, items_per_thread,

@@ -194,7 +194,7 @@ hipError_t histogram_impl(void * temporary_storage,
     }
 
     std::chrono::high_resolution_clock::time_point start;
-
+    kernel_constraints_check(dim3(::rocprim::detail::ceiling_div(max_bins, block_size)), dim3(block_size));
     if(debug_synchronous) start = std::chrono::high_resolution_clock::now();
     hipLaunchKernelGGL(
         HIP_KERNEL_NAME(init_histogram_kernel<block_size, ActiveChannels>),
@@ -216,6 +216,7 @@ hipError_t histogram_impl(void * temporary_storage,
         grid_size.y = std::min(rows, config::max_grid_size / grid_size.x);
         const size_t block_histogram_bytes = total_bins * sizeof(unsigned int);
         const unsigned int rows_per_block = ::rocprim::detail::ceiling_div(rows, grid_size.y);
+        kernel_constraints_check(grid_size, dim3(block_size, 1));
         if(debug_synchronous) start = std::chrono::high_resolution_clock::now();
         hipLaunchKernelGGL(
             HIP_KERNEL_NAME(histogram_shared_kernel<
@@ -231,6 +232,7 @@ hipError_t histogram_impl(void * temporary_storage,
     }
     else
     {
+        kernel_constraints_check(dim3(blocks_x, rows), dim3(block_size, 1));
         if(debug_synchronous) start = std::chrono::high_resolution_clock::now();
         hipLaunchKernelGGL(
             HIP_KERNEL_NAME(histogram_global_kernel<

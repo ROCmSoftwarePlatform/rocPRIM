@@ -165,7 +165,7 @@ hipError_t reduce_by_key_impl(void * temporary_storage,
                               size_t& storage_size,
                               KeysInputIterator keys_input,
                               ValuesInputIterator values_input,
-                              const unsigned int size,
+                              const size_t size,
                               UniqueOutputIterator unique_output,
                               AggregatesOutputIterator aggregates_output,
                               UniqueCountOutputIterator unique_count_output,
@@ -189,7 +189,7 @@ hipError_t reduce_by_key_impl(void * temporary_storage,
     constexpr unsigned int items_per_block = config::reduce::block_size * config::reduce::items_per_thread;
     constexpr unsigned int scan_items_per_block = config::scan::block_size * config::scan::items_per_thread;
 
-    const unsigned int blocks = std::max(1u, ::rocprim::detail::ceiling_div(size, items_per_block));
+    const unsigned int blocks = std::max(1ul, ::rocprim::detail::ceiling_div(size, (size_t)items_per_block));
     const unsigned int blocks_per_full_batch = ::rocprim::detail::ceiling_div(blocks, scan_items_per_block);
     const unsigned int full_batches = blocks % scan_items_per_block != 0
         ? blocks % scan_items_per_block
@@ -226,6 +226,7 @@ hipError_t reduce_by_key_impl(void * temporary_storage,
     // Start point for time measurements
     std::chrono::high_resolution_clock::time_point start;
 
+    kernel_constraints_check(dim3(batches), dim3(config::reduce::block_size));
     if(debug_synchronous) start = std::chrono::high_resolution_clock::now();
     hipLaunchKernelGGL(
         HIP_KERNEL_NAME(fill_unique_counts_kernel<config::reduce::block_size, config::reduce::items_per_thread>),
@@ -235,6 +236,7 @@ hipError_t reduce_by_key_impl(void * temporary_storage,
     );
     ROCPRIM_DETAIL_HIP_SYNC_AND_RETURN_ON_ERROR("fill_unique_counts", size, start)
 
+    kernel_constraints_check(dim3(1), dim3(config::scan::block_size));
     if(debug_synchronous) start = std::chrono::high_resolution_clock::now();
     hipLaunchKernelGGL(
         HIP_KERNEL_NAME(scan_unique_counts_kernel<config::scan::block_size, config::scan::items_per_thread>),
@@ -390,7 +392,7 @@ hipError_t reduce_by_key(void * temporary_storage,
                          size_t& storage_size,
                          KeysInputIterator keys_input,
                          ValuesInputIterator values_input,
-                         unsigned int size,
+                         size_t size,
                          UniqueOutputIterator unique_output,
                          AggregatesOutputIterator aggregates_output,
                          UniqueCountOutputIterator unique_count_output,

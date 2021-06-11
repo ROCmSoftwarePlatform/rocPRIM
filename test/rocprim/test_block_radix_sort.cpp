@@ -417,8 +417,8 @@ auto test_block_radix_sort()
             )
         );
 
-        ASSERT_NO_FATAL_FAILURE(test_utils::assert_eq(keys_output, keys_expected));
-        ASSERT_NO_FATAL_FAILURE(test_utils::assert_eq(values_output, values_expected));
+        ASSERT_NO_FATAL_FAILURE(test_utils::assert_near(keys_output, keys_expected,test_utils::precision_threshold<key_type>::percentage));
+        ASSERT_NO_FATAL_FAILURE(test_utils::assert_near(values_output, values_expected,test_utils::precision_threshold<value_type>::percentage));
 
         HIP_CHECK(hipFree(device_keys_output));
         HIP_CHECK(hipFree(device_values_output));

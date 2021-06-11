@@ -58,6 +58,48 @@ struct precision_threshold<rocprim::half>
     static constexpr float percentage = 0.075f;
 };
 
+template<>
+struct precision_threshold<float>
+{
+   static constexpr float percentage = 0.003f;
+};
+
+template<>
+struct precision_threshold<int>
+{
+   static constexpr float percentage = 0;
+};
+
+template<>
+struct precision_threshold<unsigned int>
+{
+   static constexpr float percentage = 0;
+};
+
+template<>
+struct precision_threshold<long>
+{
+   static constexpr float percentage = 0;
+};
+
+template<>
+struct precision_threshold<unsigned long>
+{
+   static constexpr float percentage = 0;
+};
+
+template<>
+struct precision_threshold<short>
+{
+   static constexpr float percentage = 0;
+};
+
+template<>
+struct precision_threshold<unsigned short>
+{
+   static constexpr float percentage = 0;
+};
+
 // Support half operators on host side
 
 ROCPRIM_HOST inline
@@ -1027,6 +1069,7 @@ void assert_eq(const rocprim::half& result, const rocprim::half& expected)
 {
     ASSERT_EQ(half_to_native(result), half_to_native(expected));
 }
+
 
 } // end test_utils namespace
 

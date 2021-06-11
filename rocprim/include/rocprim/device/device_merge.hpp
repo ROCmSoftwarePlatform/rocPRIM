@@ -175,6 +175,7 @@ hipError_t merge_impl(void * temporary_storage,
 
     const unsigned partition_blocks = ((partitions + 1) + half_block - 1) / half_block;
 
+    kernel_constraints_check(dim3(partition_blocks), dim3(half_block));
     if(debug_synchronous) start = std::chrono::high_resolution_clock::now();
     hipLaunchKernelGGL(
         HIP_KERNEL_NAME(detail::partition_kernel),
@@ -184,6 +185,7 @@ hipError_t merge_impl(void * temporary_storage,
     );
     ROCPRIM_DETAIL_HIP_SYNC_AND_RETURN_ON_ERROR("partition_kernel", input1_size, start);
 
+    kernel_constraints_check(dim3(number_of_blocks), dim3(block_size));
     if(debug_synchronous) start = std::chrono::high_resolution_clock::now();
     hipLaunchKernelGGL(
         HIP_KERNEL_NAME(detail::merge_kernel<block_size, items_per_thread>),
