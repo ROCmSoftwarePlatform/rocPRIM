@@ -134,6 +134,9 @@ template<>
 struct radix_key_codec_base<::rocprim::half> : radix_key_codec_floating<::rocprim::half, unsigned short> { };
 
 template<>
+struct radix_key_codec_base<::rocprim::bfloat16> : radix_key_codec_floating<::rocprim::bfloat16, unsigned short> { };
+
+template<>
 struct radix_key_codec_base<float> : radix_key_codec_floating<float, unsigned int> { };
 
 template<>
