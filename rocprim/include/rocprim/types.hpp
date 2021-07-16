@@ -142,6 +142,8 @@ struct empty_binary_op
 
 /// \brief Half-precision floating point type
 using half = ::__half;
+/// \brief bfloat16 floating point type
+using bfloat16 = ::hip_bfloat16;
 
 // The lane_mask_type only exist at device side
 #ifndef __AMDGCN_WAVEFRONT_SIZE
